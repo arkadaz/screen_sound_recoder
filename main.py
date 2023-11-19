@@ -3,7 +3,7 @@ import cv2
 from time import time
 import soundfile as sf
 import soundcard as sc
-from multiprocessing import Process
+from multiprocessing import Process, cpu_count
 from moviepy.editor import *
 from tqdm import tqdm
 
@@ -29,7 +29,7 @@ def record_video(second, file_name_video):
     frame_delta = 1 / fps
 
     # open video writer
-    video = cv2.VideoWriter(f'{file_name_video}.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (width, height))
+    video = cv2.VideoWriter(f'{file_name_video}.avi', cv2.VideoWriter_fourcc(*'XVID'), fps, (width, height))
     next_frame = time()
     camera.start(target_fps=120, video_mode=True)
     print("Recording video")
@@ -66,10 +66,10 @@ if __name__ == '__main__':
 
     t1.join()
     t2.join()
-    videoclip = VideoFileClip(f"{file_name_video}.mp4")
+    videoclip = VideoFileClip(f"{file_name_video}.avi")
     audioclip = AudioFileClip(f"{file_name_sound}.wav")
 
     new_audioclip = CompositeAudioClip([audioclip])
     videoclip.audio = new_audioclip
-    videoclip.write_videofile(f"{output_file_name}.mp4", audio_fps=44100, audio_nbytes=4, threads=24)
+    videoclip.write_videofile(f"{output_file_name}.mp4", audio_fps=44100, audio_nbytes=4, threads=cpu_count(), codec='libx264', bitrate="8500k")
     print("All Done!")
